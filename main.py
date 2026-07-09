@@ -7,7 +7,7 @@ ctk.set_default_color_theme("blue")
 
 # Window
 app = ctk.CTk()
-app.title("NetGuardian AI")
+app.title("NetGuardian Pro")
 app.geometry("1200x700")
 
 # Sidebar
@@ -16,7 +16,7 @@ sidebar.pack(side="left", fill="y")
 
 logo = ctk.CTkLabel(
     sidebar,
-    text="NetGuardian AI",
+    text="NetGuardian Pro",
     font=("Arial", 22, "bold")
 )
 logo.pack(pady=30)
