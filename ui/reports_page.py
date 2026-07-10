@@ -7,6 +7,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 import threading
 
+from modules.logger import log_info
 from ui.styles import COLORS, FONTS
 from modules.reports import generate_report, save_report
 
@@ -103,6 +104,7 @@ class ReportsPage(tk.Frame):
         self.generate_btn.config(state="disabled")
 
         report = generate_report()
+        log_info("System report generated.")
 
         def update_ui():
             self.output.delete("1.0", tk.END)
@@ -125,6 +127,7 @@ class ReportsPage(tk.Frame):
 
         filepath = save_report(report_text)
         self._update_status(f"Saved to: {filepath}")
+        log_info(f"Report saved | Path: {filepath}")
 
     # ==========================
     # Status Helper

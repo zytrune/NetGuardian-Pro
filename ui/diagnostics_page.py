@@ -7,6 +7,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 import threading
 
+from modules.logger import log_info
 from ui.styles import COLORS, FONTS
 from modules.diagnostics import run_ping, dns_lookup
 
@@ -111,17 +112,19 @@ class DiagnosticsPage(tk.Frame):
 
         self._set_buttons_state("disabled")
         self._update_output("Running ping...\n\n")
-
+        log_info(f"Ping executed | Host: {host}")
         result = run_ping(host)
 
         self._update_output(result)
         self._set_buttons_state("normal")
+        
 
     def _handle_dns(self):
         domain = self.entry.get().strip()
         if not domain:
             return
-
+    
+        log_info(f"DNS lookup executed | Domain: {domain}")
         self._set_buttons_state("disabled")
         self._update_output("Running DNS lookup...\n\n")
 

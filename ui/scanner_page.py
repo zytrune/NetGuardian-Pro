@@ -1,6 +1,6 @@
 """
 NetGuardian Pro - Scanner Page
-Enhanced Port Scanner UI with custom port range.
+Enhanced Port Scanner UI with logging.
 """
 
 import tkinter as tk
@@ -10,6 +10,7 @@ import threading
 
 from ui.styles import COLORS, FONTS
 from modules.scanner import run_port_scan
+from modules.logger import log_info, log_error
 
 
 class ScannerPage(tk.Frame):
@@ -34,7 +35,6 @@ class ScannerPage(tk.Frame):
         controls_frame = tk.Frame(self, bg=COLORS["bg_main"])
         controls_frame.pack(pady=10)
 
-        # Target
         tk.Label(
             controls_frame,
             text="Target:",
@@ -47,7 +47,6 @@ class ScannerPage(tk.Frame):
         self.entry.insert(0, "localhost")
         self.entry.grid(row=0, column=1, padx=5)
 
-        # Start Port
         tk.Label(
             controls_frame,
             text="Start Port:",
@@ -60,7 +59,6 @@ class ScannerPage(tk.Frame):
         self.start_port_entry.insert(0, "1")
         self.start_port_entry.grid(row=1, column=1, sticky="w")
 
-        # End Port
         tk.Label(
             controls_frame,
             text="End Port:",
@@ -73,7 +71,6 @@ class ScannerPage(tk.Frame):
         self.end_port_entry.insert(0, "1024")
         self.end_port_entry.grid(row=1, column=1, padx=140, sticky="w")
 
-        # Scan Button
         self.scan_button = tk.Button(
             controls_frame,
             text="Scan Ports",
@@ -88,7 +85,6 @@ class ScannerPage(tk.Frame):
         )
         self.scan_button.grid(row=0, column=2, rowspan=2, padx=20)
 
-        # Progress bar
         self.progress = ttk.Progressbar(
             self,
             orient="horizontal",
@@ -109,8 +105,7 @@ class ScannerPage(tk.Frame):
         self.output.pack(pady=15)
 
     def _start_scan_thread(self):
-        thread = threading.Thread(target=self._run_scan, daemon=True)
-        thread.start()
+        threading.Thread(target=self._run_scan, daemon=True).start()
 
     def _run_scan(self):
         target = self.entry.get().strip()
@@ -119,11 +114,14 @@ class ScannerPage(tk.Frame):
             start_port = int(self.start_port_entry.get())
             end_port = int(self.end_port_entry.get())
         except ValueError:
+            log_error("Invalid port number input in scanner.")
             self._update_output("Invalid port numbers.\n")
             return
 
         if not target:
             return
+
+        log_info(f"Port scan started | Target: {target} | Range: {start_port}-{end_port}")
 
         self.scan_button.config(state="disabled")
         self.progress["value"] = 0
@@ -135,16 +133,12 @@ class ScannerPage(tk.Frame):
             self.output.insert(tk.END, results)
             self.scan_button.config(state="normal")
             self.progress["value"] = 100
+            log_info(f"Port scan completed | Target: {target}")
 
         self.after(0, finish)
 
     def _update_progress(self, value):
-        def update():
-            self.progress["value"] = value
-        self.after(0, update)
+        self.after(0, lambda: self.progress.config(value=value))
 
     def _update_output(self, text):
-        def update():
-            self.output.delete("1.0", tk.END)
-            self.output.insert(tk.END, text)
-        self.after(0, update)
+        self.after(0, lambda: (self.output.delete("1.0", tk.END), self.output.insert(tk.END, text)))
