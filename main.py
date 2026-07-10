@@ -1,69 +1,38 @@
-import customtkinter as ctk
-from modules.system import get_system_info
+"""
+NetGuardian Pro
+Main Application Entry Point
+"""
 
-# Theme
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
+import tkinter as tk
 
-# Window
-app = ctk.CTk()
-app.title("NetGuardian Pro")
-app.geometry("1200x700")
+from ui.styles import COLORS
+from ui.sidebar import Sidebar
+from ui.dashboard import Dashboard
 
-# Sidebar
-sidebar = ctk.CTkFrame(app, width=220, corner_radius=0)
-sidebar.pack(side="left", fill="y")
 
-logo = ctk.CTkLabel(
-    sidebar,
-    text="NetGuardian Pro",
-    font=("Arial", 22, "bold")
-)
-logo.pack(pady=30)
+class NetGuardianApp(tk.Tk):
+    def __init__(self):
+        super().__init__()
 
-buttons = [
-    "Dashboard",
-    "Network",
-    "Scanner",
-    "Reports",
-    "Settings",
-    "Exit"
-]
+        # Window Configuration
+        self.title("NetGuardian Pro v1.1")
+        self.geometry("1100x650")
+        self.minsize(900, 600)
+        self.configure(bg=COLORS["bg_main"])
 
-for item in buttons:
-    btn = ctk.CTkButton(
-        sidebar,
-        text=item,
-        width=180,
-        height=40
-    )
-    btn.pack(pady=8)
+        # Layout Structure
+        self._create_layout()
 
-# Main Content
-content = ctk.CTkFrame(app)
-content.pack(side="right", fill="both", expand=True)
+    def _create_layout(self):
+        # Sidebar
+        self.sidebar = Sidebar(self)
+        self.sidebar.pack(side="left", fill="y")
 
-title = ctk.CTkLabel(
-    content,
-    text="Dashboard",
-    font=("Arial", 30, "bold")
-)
-title.pack(pady=20)
+        # Main Content Area
+        self.dashboard = Dashboard(self)
+        self.dashboard.pack(side="right", fill="both", expand=True)
 
-# Get system info
-system_info = get_system_info()
 
-info_text = ""
-
-for key, value in system_info.items():
-    info_text += f"{key}: {value}\n"
-
-info_label = ctk.CTkLabel(
-    content,
-    text=info_text,
-    font=("Consolas", 18),
-    justify="left"
-)
-info_label.pack(pady=20)
-
-app.mainloop()
+if __name__ == "__main__":
+    app = NetGuardianApp()
+    app.mainloop()
