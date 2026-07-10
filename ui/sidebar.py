@@ -8,21 +8,19 @@ from ui.styles import COLORS, FONTS, LAYOUT
 
 
 class Sidebar(tk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, switch_page):
         super().__init__(
             parent,
             bg=COLORS["bg_sidebar"],
             width=LAYOUT["sidebar_width"]
         )
 
-        self.pack_propagate(False)  # Prevent sidebar from resizing
+        self.switch_page = switch_page
+        self.pack_propagate(False)
 
         self._create_logo_section()
         self._create_navigation()
 
-    # ==========================
-    # Logo / App Title
-    # ==========================
     def _create_logo_section(self):
         logo_frame = tk.Frame(self, bg=COLORS["bg_sidebar"])
         logo_frame.pack(pady=30)
@@ -36,9 +34,6 @@ class Sidebar(tk.Frame):
         )
         app_title.pack()
 
-    # ==========================
-    # Navigation Buttons
-    # ==========================
     def _create_navigation(self):
         nav_frame = tk.Frame(self, bg=COLORS["bg_sidebar"])
         nav_frame.pack(pady=20)
@@ -65,7 +60,7 @@ class Sidebar(tk.Frame):
                 padx=20,
                 pady=10,
                 anchor="w",
-                cursor="hand2"
+                cursor="hand2",
+                command=lambda n=name: self.switch_page(n)
             )
-
             btn.pack(fill="x", pady=5)
