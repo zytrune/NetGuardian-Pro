@@ -9,6 +9,7 @@ from ui.styles import COLORS
 from ui.sidebar import Sidebar
 from ui.dashboard import Dashboard
 from ui.network_page import NetworkPage
+from ui.diagnostics_page import DiagnosticsPage
 
 
 class NetGuardianApp(tk.Tk):
@@ -24,7 +25,7 @@ class NetGuardianApp(tk.Tk):
         self.show_page("Dashboard")  # Default page
 
     def _create_layout(self):
-        # Sidebar (pass the switch function)
+        # Sidebar
         self.sidebar = Sidebar(self, self.show_page)
         self.sidebar.pack(side="left", fill="y")
 
@@ -35,14 +36,15 @@ class NetGuardianApp(tk.Tk):
         # Store pages
         self.pages = {}
 
-        # Create pages once
+        # Create pages
         self.pages["Dashboard"] = Dashboard(self.container)
         self.pages["Network"] = NetworkPage(self.container)
+        self.pages["Diagnostics"] = DiagnosticsPage(self.container)
 
     def show_page(self, page_name):
-        # Hide all pages
-        for page in self.pages.values():
-            page.pack_forget()
+        # Hide all pages inside container
+        for widget in self.container.winfo_children():
+            widget.pack_forget()
 
         # Show selected page
         if page_name in self.pages:
