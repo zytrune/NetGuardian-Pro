@@ -10,7 +10,7 @@ from ui.sidebar import Sidebar
 from ui.dashboard import Dashboard
 from ui.network_page import NetworkPage
 from ui.diagnostics_page import DiagnosticsPage
-
+from ui.reports_page import ReportsPage
 
 class NetGuardianApp(tk.Tk):
     def __init__(self):
@@ -40,7 +40,7 @@ class NetGuardianApp(tk.Tk):
         self.pages["Dashboard"] = Dashboard(self.container)
         self.pages["Network"] = NetworkPage(self.container)
         self.pages["Diagnostics"] = DiagnosticsPage(self.container)
-
+        self.pages["Reports"] = ReportsPage(self.container)
     def show_page(self, page_name):
         # Stop and hide all pages
         for page in self.pages.values():
