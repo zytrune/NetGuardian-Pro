@@ -1,0 +1,25 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#0f172a"/>
+
+  <!-- Shield -->
+  <path d="M512 150 
+           L820 280 
+           V520 
+           C820 700 650 830 512 900 
+           C374 830 204 700 204 520 
+           V280 
+           Z"
+        fill="none"
+        stroke="#3b82f6"
+        stroke-width="40"
+        stroke-linejoin="round"/>
+
+  <!-- Pulse Line -->
+  <polyline points="300,520 400,520 450,480 500,580 550,460 600,520 724,520"
+            fill="none"
+            stroke="#ffffff"
+            stroke-width="25"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+</svg>
