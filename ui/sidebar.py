@@ -42,6 +42,7 @@ class Sidebar(tk.Frame):
             "Dashboard",
             "Network",
             "Diagnostics",
+            "Scanner",
             "Reports",
             "Settings"
         ]
