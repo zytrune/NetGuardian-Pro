@@ -1,12 +1,13 @@
 """
 NetGuardian Pro - Diagnostics Page
-Provides network diagnostic tools.
+Provides network diagnostic tools (non-blocking).
 """
 
 import tkinter as tk
 from tkinter import scrolledtext
+import threading
 
-from ui.styles import COLORS, FONTS, LAYOUT
+from ui.styles import COLORS, FONTS
 from modules.diagnostics import run_ping, dns_lookup
 
 
@@ -45,10 +46,10 @@ class DiagnosticsPage(tk.Frame):
         )
         self.entry.pack(side="left", padx=10)
 
-        ping_button = tk.Button(
+        self.ping_button = tk.Button(
             tools_frame,
             text="Ping",
-            command=self._handle_ping,
+            command=self._start_ping_thread,
             bg=COLORS["accent"],
             fg="white",
             font=FONTS["body"],
@@ -57,12 +58,12 @@ class DiagnosticsPage(tk.Frame):
             pady=5,
             cursor="hand2"
         )
-        ping_button.pack(side="left", padx=5)
+        self.ping_button.pack(side="left", padx=5)
 
-        dns_button = tk.Button(
+        self.dns_button = tk.Button(
             tools_frame,
             text="DNS Lookup",
-            command=self._handle_dns,
+            command=self._start_dns_thread,
             bg=COLORS["accent"],
             fg="white",
             font=FONTS["body"],
@@ -71,7 +72,7 @@ class DiagnosticsPage(tk.Frame):
             pady=5,
             cursor="hand2"
         )
-        dns_button.pack(side="left", padx=5)
+        self.dns_button.pack(side="left", padx=5)
 
     # ==========================
     # Output Area
@@ -88,22 +89,60 @@ class DiagnosticsPage(tk.Frame):
         self.output.pack(pady=20)
 
     # ==========================
-    # Handlers
+    # Thread Starters
+    # ==========================
+    def _start_ping_thread(self):
+        thread = threading.Thread(target=self._handle_ping)
+        thread.daemon = True
+        thread.start()
+
+    def _start_dns_thread(self):
+        thread = threading.Thread(target=self._handle_dns)
+        thread.daemon = True
+        thread.start()
+
+    # ==========================
+    # Handlers (Background)
     # ==========================
     def _handle_ping(self):
         host = self.entry.get().strip()
         if not host:
             return
 
-        self.output.delete("1.0", tk.END)
+        self._set_buttons_state("disabled")
+        self._update_output("Running ping...\n\n")
+
         result = run_ping(host)
-        self.output.insert(tk.END, result)
+
+        self._update_output(result)
+        self._set_buttons_state("normal")
 
     def _handle_dns(self):
         domain = self.entry.get().strip()
         if not domain:
             return
 
-        self.output.delete("1.0", tk.END)
+        self._set_buttons_state("disabled")
+        self._update_output("Running DNS lookup...\n\n")
+
         result = dns_lookup(domain)
-        self.output.insert(tk.END, result)
+
+        self._update_output(result)
+        self._set_buttons_state("normal")
+
+    # ==========================
+    # Safe UI Updates
+    # ==========================
+    def _update_output(self, text):
+        def update():
+            self.output.delete("1.0", tk.END)
+            self.output.insert(tk.END, text)
+
+        self.after(0, update)
+
+    def _set_buttons_state(self, state):
+        def update():
+            self.ping_button.config(state=state)
+            self.dns_button.config(state=state)
+
+        self.after(0, update)

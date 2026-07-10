@@ -14,7 +14,7 @@ import platform
 def run_ping(host):
     try:
         param = "-n" if platform.system().lower() == "windows" else "-c"
-        command = ["ping", param, "4", host]
+        command = ["ping", param, "1", host]
 
         result = subprocess.run(
             command,

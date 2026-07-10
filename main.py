@@ -22,7 +22,7 @@ class NetGuardianApp(tk.Tk):
         self.configure(bg=COLORS["bg_main"])
 
         self._create_layout()
-        self.show_page("Dashboard")  # Default page
+        self.show_page("Dashboard")
 
     def _create_layout(self):
         # Sidebar
@@ -42,13 +42,19 @@ class NetGuardianApp(tk.Tk):
         self.pages["Diagnostics"] = DiagnosticsPage(self.container)
 
     def show_page(self, page_name):
-        # Hide all pages inside container
-        for widget in self.container.winfo_children():
-            widget.pack_forget()
+        # Stop and hide all pages
+        for page in self.pages.values():
+            if hasattr(page, "stop"):
+                page.stop()
+            page.pack_forget()
 
         # Show selected page
         if page_name in self.pages:
-            self.pages[page_name].pack(fill="both", expand=True)
+            page = self.pages[page_name]
+            page.pack(fill="both", expand=True)
+
+            if hasattr(page, "start"):
+                page.start()
 
 
 if __name__ == "__main__":

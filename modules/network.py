@@ -13,10 +13,17 @@ import requests
 # ==============================
 def get_local_ip():
     try:
-        hostname = socket.gethostname()
-        return socket.gethostbyname(hostname)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect(("8.8.8.8", 80))
+        ip = sock.getsockname()[0]
+        sock.close()
+        return ip
     except:
-        return "Unavailable"
+        try:
+            hostname = socket.gethostname()
+            return socket.gethostbyname(hostname)
+        except:
+            return "Unavailable"
 
 
 # ==============================
@@ -24,8 +31,8 @@ def get_local_ip():
 # ==============================
 def get_public_ip():
     try:
-        response = requests.get("https://api.ipify.org", timeout=3)
-        return response.text
+        response = requests.get("https://api.ipify.org", timeout=1.5)
+        return response.text.strip()
     except:
         return "Unavailable"
 
@@ -35,7 +42,8 @@ def get_public_ip():
 # ==============================
 def get_network_status():
     try:
-        requests.get("https://www.google.com", timeout=3)
+        conn = socket.create_connection(("8.8.8.8", 53), timeout=1.5)
+        conn.close()
         return "Connected"
     except:
         return "Disconnected"
@@ -46,6 +54,6 @@ def get_network_status():
 # ==============================
 def get_network_usage():
     counters = psutil.net_io_counters()
-    sent = counters.bytes_sent / (1024 * 1024)      # MB
-    received = counters.bytes_recv / (1024 * 1024)  # MB
+    sent = counters.bytes_sent / (1024 * 1024)
+    received = counters.bytes_recv / (1024 * 1024)
     return round(sent, 2), round(received, 2)

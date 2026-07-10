@@ -20,14 +20,28 @@ class Dashboard(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent, bg=COLORS["bg_main"])
 
+        self.running = False
+        self.after_id_stats = None
+        self.after_id_clock = None
+
         self._create_header()
         self._create_cards()
-        self._update_stats()
-        self._update_clock()
 
-    # ==========================
-    # Header
-    # ==========================
+    def start(self):
+        if not self.running:
+            self.running = True
+            self._update_stats()
+            self._update_clock()
+
+    def stop(self):
+        self.running = False
+        if self.after_id_stats:
+            self.after_cancel(self.after_id_stats)
+            self.after_id_stats = None
+        if self.after_id_clock:
+            self.after_cancel(self.after_id_clock)
+            self.after_id_clock = None
+
     def _create_header(self):
         header_frame = tk.Frame(self, bg=COLORS["bg_main"])
         header_frame.pack(fill="x", padx=LAYOUT["padding"], pady=20)
@@ -49,9 +63,6 @@ class Dashboard(tk.Frame):
         )
         self.clock_label.pack(side="right")
 
-    # ==========================
-    # Cards
-    # ==========================
     def _create_cards(self):
         self.cards_frame = tk.Frame(self, bg=COLORS["bg_main"])
         self.cards_frame.pack(padx=LAYOUT["padding"], pady=10)
@@ -68,10 +79,10 @@ class Dashboard(tk.Frame):
         self.uptime_card = StatCard(self.cards_frame, "System Uptime", unit="")
         self.uptime_card.grid(row=1, column=0, padx=15, pady=15)
 
-    # ==========================
-    # Update Stats
-    # ==========================
     def _update_stats(self):
+        if not self.running:
+            return
+
         cpu = get_cpu_usage()
         ram = get_ram_usage()
         disk = get_disk_usage()
@@ -82,12 +93,13 @@ class Dashboard(tk.Frame):
         self.disk_card.update_value(disk)
         self.uptime_card.update_value(uptime)
 
-        self.after(1000, self._update_stats)
+        self.after_id_stats = self.after(1000, self._update_stats)
 
-    # ==========================
-    # Clock
-    # ==========================
     def _update_clock(self):
+        if not self.running:
+            return
+
         current_time = datetime.now().strftime("%H:%M:%S")
         self.clock_label.config(text=current_time)
-        self.after(1000, self._update_clock)
+
+        self.after_id_clock = self.after(1000, self._update_clock)
