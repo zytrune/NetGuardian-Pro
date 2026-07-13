@@ -2,7 +2,7 @@
 NetGuardian Pro - Security Scanner Module
 Handles controlled multi-threaded port scanning.
 """
-
+from modules.state import last_open_ports
 import socket
 import threading
 
@@ -83,6 +83,13 @@ def run_port_scan(target, start_port=1, end_port=1024, update_progress_callback=
 
     for th in threads:
         th.join()
+    last_open_ports.clear()
+    for port, _ in open_ports:
+        last_open_ports.append(port)
+
+
+
+
 
     report = f"\nScan Results for: {target} ({target_ip})\n"
     report += "=" * 60 + "\n"

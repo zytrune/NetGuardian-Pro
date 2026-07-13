@@ -11,7 +11,7 @@ class StatCard(tk.Frame):
     def __init__(self, parent, title, unit="%"):
         super().__init__(
             parent,
-            bg=COLORS["bg_card"],
+            bg="#1e293b",
             width=LAYOUT["card_width"],
             height=LAYOUT["card_height"]
         )
@@ -34,7 +34,7 @@ class StatCard(tk.Frame):
         self.value_label = tk.Label(
             self,
             text="0" + unit,
-            bg=COLORS["bg_card"],
+            bg="#1e293b",
             fg=COLORS["text_primary"],
             font=FONTS["title"]
         )

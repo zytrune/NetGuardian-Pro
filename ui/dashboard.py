@@ -1,12 +1,11 @@
 """
-NetGuardian Pro - Dashboard View
-Main dashboard content area.
+NetGuardian Pro - Structured Dashboard
 """
 
 import tkinter as tk
 from datetime import datetime
 
-from ui.styles import COLORS, FONTS, LAYOUT
+from ui.styles import COLORS, FONTS
 from ui.cards import StatCard
 from modules.system import (
     get_cpu_usage,
@@ -25,26 +24,11 @@ class Dashboard(tk.Frame):
         self.after_id_clock = None
 
         self._create_header()
-        self._create_cards()
-
-    def start(self):
-        if not self.running:
-            self.running = True
-            self._update_stats()
-            self._update_clock()
-
-    def stop(self):
-        self.running = False
-        if self.after_id_stats:
-            self.after_cancel(self.after_id_stats)
-            self.after_id_stats = None
-        if self.after_id_clock:
-            self.after_cancel(self.after_id_clock)
-            self.after_id_clock = None
+        self._create_sections()
 
     def _create_header(self):
         header_frame = tk.Frame(self, bg=COLORS["bg_main"])
-        header_frame.pack(fill="x", padx=LAYOUT["padding"], pady=20)
+        header_frame.pack(fill="x", pady=(0, 25))
 
         title = tk.Label(
             header_frame,
@@ -63,35 +47,79 @@ class Dashboard(tk.Frame):
         )
         self.clock_label.pack(side="right")
 
-    def _create_cards(self):
-        self.cards_frame = tk.Frame(self, bg=COLORS["bg_main"])
-        self.cards_frame.pack(padx=LAYOUT["padding"], pady=10)
+    def _create_sections(self):
 
-        self.cpu_card = StatCard(self.cards_frame, "CPU Usage")
-        self.cpu_card.grid(row=0, column=0, padx=15, pady=15)
+        # Performance Section
+        perf_section = tk.Frame(
+            self,
+            bg=COLORS["bg_card"],
+            padx=30,
+            pady=30
+        )
+        perf_section.pack(fill="x", pady=(0, 30))
 
-        self.ram_card = StatCard(self.cards_frame, "RAM Usage")
-        self.ram_card.grid(row=0, column=1, padx=15, pady=15)
+        perf_title = tk.Label(
+            perf_section,
+            text="Performance",
+            bg=COLORS["bg_card"],
+            fg=COLORS["text_secondary"],
+            font=FONTS["subtitle"]
+        )
+        perf_title.pack(anchor="w", pady=(0, 20))
 
-        self.disk_card = StatCard(self.cards_frame, "Disk Usage")
-        self.disk_card.grid(row=0, column=2, padx=15, pady=15)
+        perf_grid = tk.Frame(perf_section, bg=COLORS["bg_card"])
+        perf_grid.pack()
 
-        self.uptime_card = StatCard(self.cards_frame, "System Uptime", unit="")
-        self.uptime_card.grid(row=1, column=0, padx=15, pady=15)
+        self.cpu_card = StatCard(perf_grid, "CPU Usage")
+        self.ram_card = StatCard(perf_grid, "RAM Usage")
+        self.disk_card = StatCard(perf_grid, "Disk Usage")
+
+        self.cpu_card.grid(row=0, column=0, padx=25)
+        self.ram_card.grid(row=0, column=1, padx=25)
+        self.disk_card.grid(row=0, column=2, padx=25)
+
+        # System Section
+        sys_section = tk.Frame(
+            self,
+            bg=COLORS["bg_card"],
+            padx=30,
+            pady=30
+        )
+        sys_section.pack(fill="x")
+
+        sys_title = tk.Label(
+            sys_section,
+            text="System Status",
+            bg=COLORS["bg_card"],
+            fg=COLORS["text_secondary"],
+            font=FONTS["subtitle"]
+        )
+        sys_title.pack(anchor="w", pady=(0, 20))
+
+        self.uptime_card = StatCard(sys_section, "System Uptime", unit="")
+        self.uptime_card.pack()
+
+    def start(self):
+        if not self.running:
+            self.running = True
+            self._update_stats()
+            self._update_clock()
+
+    def stop(self):
+        self.running = False
+        if self.after_id_stats:
+            self.after_cancel(self.after_id_stats)
+        if self.after_id_clock:
+            self.after_cancel(self.after_id_clock)
 
     def _update_stats(self):
         if not self.running:
             return
 
-        cpu = get_cpu_usage()
-        ram = get_ram_usage()
-        disk = get_disk_usage()
-        uptime = get_system_uptime()
-
-        self.cpu_card.update_value(cpu)
-        self.ram_card.update_value(ram)
-        self.disk_card.update_value(disk)
-        self.uptime_card.update_value(uptime)
+        self.cpu_card.update_value(get_cpu_usage())
+        self.ram_card.update_value(get_ram_usage())
+        self.disk_card.update_value(get_disk_usage())
+        self.uptime_card.update_value(get_system_uptime())
 
         self.after_id_stats = self.after(1000, self._update_stats)
 
@@ -99,7 +127,8 @@ class Dashboard(tk.Frame):
         if not self.running:
             return
 
-        current_time = datetime.now().strftime("%H:%M:%S")
-        self.clock_label.config(text=current_time)
+        self.clock_label.config(
+            text=datetime.now().strftime("%H:%M:%S")
+        )
 
         self.after_id_clock = self.after(1000, self._update_clock)
